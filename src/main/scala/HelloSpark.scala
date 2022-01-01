@@ -1,13 +1,15 @@
 import com.amazonaws.services.glue.GlueContext
 import com.amazonaws.services.glue.log.GlueLogger
-import com.amazonaws.services.glue.util.GlueArgParser
-import org.apache.log4j.LogManager
+import com.amazonaws.services.glue.util.{GlueArgParser, JsonOptions}
+import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.SparkSession
 
 object HelloSpark {
 
   def main(args: Array[String]): Unit = {
 
+    // to properly use this in aws glue, add a log4j.properties file to the s3 location referenced by
+    // the --extra-files special parameter on the glue job
     val logger = new GlueLogger
 
     // start simulation
@@ -15,6 +17,12 @@ object HelloSpark {
       args,
       Array("show")
     )
+
+    val configFactory = ConfigFactory.load()
+    val config = configFactory.getConfig("org.example.cdp-audits")
+    val host = config.getConfig("mysql").getString("url")
+    val user = config.getConfig("mysql").getString("username")
+    val pass = config.getConfig("mysql").getString("password")
 
     implicit val spark: SparkSession = SparkSession
       .builder()
@@ -27,21 +35,20 @@ object HelloSpark {
     logger.info(s"System properties says, running ${System.getProperty("spark.app.name")} on ${System.getProperty("spark.master")}")
     logger.info(s"Glue says, running ${glue.sparkContext.appName} on ${glue.sparkContext.master}")
 
-
-    val characters = glue.sparkContext.parallelize(Seq(
-      ("vince", "chase"),
-      ("john", "drama"),
-      ("turtle", null),
-      ("eric", "murphy"),
-      ("sloan", "mcquewick")
-    ))
-
-    val charactersDf = glue.createDataFrame(characters).toDF("firstName", "lastName")
-
-    charactersDf
-      .filter("lastName is not null")
-      .withColumnRenamed("firstName", "first name")
-      .withColumnRenamed("lastName", "last name")
+    glue
+      .getSource(
+        connectionType = "mysql",
+        connectionOptions = JsonOptions(
+          Map(
+            "url"      -> host,
+            "dbtable"  -> "baz",
+            "user"     -> user,
+            "password" -> pass
+          )
+        )
+      )
+      .getDynamicFrame()
+      .toDF()
       .show()
   }
 }
