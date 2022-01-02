@@ -18,7 +18,7 @@ Be sure to have the Scala framework plugin installed.
 ## Project Setup
 Create your __maven project__, but then you need a couple additional steps.
 
-Be sure to include the Scala SDK in your project (⌘;).
+Be sure to include the Scala SDK in your project (⌘,).
 
 ![Scala SDK](docs/images/scala-sdk-intellij.png)
 
