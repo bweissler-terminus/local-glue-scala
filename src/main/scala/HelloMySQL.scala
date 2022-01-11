@@ -4,7 +4,7 @@ import com.amazonaws.services.glue.util.{GlueArgParser, JsonOptions}
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.SparkSession
 
-object HelloSpark {
+object HelloMySQL {
 
   def main(args: Array[String]): Unit = {
 
@@ -28,8 +28,6 @@ object HelloSpark {
       .builder()
       .getOrCreate()
 
-    import spark.implicits._
-
     val glue = new GlueContext(spark.sparkContext)
 
     logger.info(s"System properties says, running ${System.getProperty("spark.app.name")} on ${System.getProperty("spark.master")}")
@@ -43,7 +41,8 @@ object HelloSpark {
             "url"      -> host,
             "dbtable"  -> "baz",
             "user"     -> user,
-            "password" -> pass
+            "password" -> pass,
+            "useSSL"   -> "false"
           )
         )
       )
