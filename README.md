@@ -48,6 +48,35 @@ use the GlueLogger -- an example is in this repo.
 > This logging is only carried through to Glue in AWS if you upload the pass the `log4.properties` file to S3 and use the
 > `--extra-files` special job parameter when configuing your Glue job.
 
+# MySQL
+One thing we tend to do is use the Glue `getSource` method to connect to data, for example in MySQL.  To play with this,
+you can ...
+
+> Notice, we had to add the `mysql-connector-java` dependency to the `pom.xml`.
+
+## Start a MySQL Docker Container
+```
+docker run --name mysql -e MYSQL_ROOT_PASSWORD=mysql -p 3306:3306 -d mysql:8.0.27
+```
+
+## Create a Schema and Table
+Connect to your MySQL at `localhost` on port `3306` with user `root` and password `mysql` (notice, `MYSQL_ROOT_PASSWORD` in the Docker command).
+
+Create a schema called `bar` and a table called `baz`.
+
+```
+create schema bar;
+
+create table bar.baz (k int, v varchar(100));
+
+insert into bar.baz values (1, 'uno');
+insert into bar.baz values (2, 'dos');
+```
+  
+### Run a Test
+Copy the above `HelloSpark.scala` config to run `HelloMySQL.scala`.  Run it.
+
+
 # Gotchas
 Make sure you are using the right Scala SDK version, as specified [here](https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-libraries.html#develop-local-scala).
 
@@ -55,7 +84,3 @@ Make sure you are using the right Java JDK version for your Scala version, as sp
 
 If you get an error like `java.lang.NoSuchMethodError: scala.Predef$.` blah blah blah, this [stackoverflow answer](https://stackoverflow.com/a/46521546) 
 clued me in that I had a conflicting Scala SDK in my Global Libraries configuration in IntelliJ.
-
-I'm still trying to figure out how to use Glue's `getSource` method to connect to a locally running MySQL, but it's failing
-to find the driver.  I'm hoping something [here](https://docs.aws.amazon.com/glue/latest/dg/connection-defining.html#connection-properties-jdbc)
-might enlighten me.  _Watch this space._
