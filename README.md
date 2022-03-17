@@ -45,7 +45,7 @@ __Program Arguments__ (if desired)
 By default, the SDK logs a lot.  Do yourself a favor and add `log4j.properties` to `src/main/resources`, and optionally
 use the GlueLogger -- an example is in this repo.
 
-> This logging is only carried through to Glue in AWS if you upload the pass the `log4.properties` file to S3 and use the
+> This logging is only carried through to Glue in AWS if you upload the `log4.properties` file to S3 and use the
 > `--extra-files` special job parameter when configuing your Glue job.
 
 # MySQL
